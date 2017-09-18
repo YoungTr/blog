@@ -3,16 +3,16 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: YoungTr
 subtitle:
 idescription:
-author: John Doe
-language:
+author: YoungTr
+language: zh-Hans
 timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://yoursite.com
+url: https://youngtr.github.io/
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
