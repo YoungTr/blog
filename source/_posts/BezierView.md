@@ -2,6 +2,7 @@
 title: BezierView
 date: 2017-09-20 21:13:33
 tags:  [Android, View]
+categories: [Android自定义View]
 ---
 
 ### 简单学习了贝塞尔曲线的原理和使用
