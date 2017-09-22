@@ -7,9 +7,24 @@ categories: [Android自定义View]
 
 ### 简单学习了贝塞尔曲线的原理和使用
 
+二阶贝塞尔曲线在Android中的API为：quadTo()和rQuadTo()，三阶贝塞尔曲线在Android中的API为：cubicTo()和rCubicTo().
+
 #### 1. 一阶贝塞尔曲线和水波纹效果的使用
 
 <img src="https://youngtr.github.io/images/Bezier.gif" width="50%" height="50%">
+
+关键代码
+
+ 		mPath.reset();
+        mPath.moveTo(-mWaveLength + mXOffset, mCenterY);
+        for (int i = 0; i < mWaveCount; i++) {
+            mPath.quadTo((-mWaveLength * 3 / 4) + (i * mWaveLength) + mXOffset, mCenterY + mYOffset, (-mWaveLength / 2) + (i * mWaveLength) + mXOffset, mCenterY);
+            mPath.quadTo((-mWaveLength / 4) + (i * mWaveLength) + mXOffset, mCenterY - mYOffset, i * mWaveLength + mXOffset, mCenterY);
+        }
+        mPath.lineTo(mWidth, mHeight);
+        mPath.lineTo(0, mHeight);
+        mPath.close();
+        canvas.drawPath(mPath, mWavePaint);
 
 #### 2. 曲线的拟合
 

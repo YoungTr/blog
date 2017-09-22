@@ -94,21 +94,21 @@
 
 
 
-<meta name="description" content="简单学习了贝塞尔曲线的原理和使用1. 一阶贝塞尔曲线和水波纹效果的使用 2. 曲线的拟合 3. 粘性拖动控件 源码BezierView 参考贝塞尔曲线原理 http://www.cnblogs.com/hnfxs/p/3148483.html Android QQ小红点的实现 http://blog.csdn.net/mabeijianxi/article/details/50560361 贝塞尔">
+<meta name="description" content="简单学习了贝塞尔曲线的原理和使用二阶贝塞尔曲线在Android中的API为：quadTo()和rQuadTo()，三阶贝塞尔曲线在Android中的API为：cubicTo()和rCubicTo(). 1. 一阶贝塞尔曲线和水波纹效果的使用 关键代码  mPath.reset(); mPath.moveTo(-mWaveLength + mXOffset, mCenterY); for (int">
 <meta name="keywords" content="Android,View">
 <meta property="og:type" content="article">
 <meta property="og:title" content="BezierView">
 <meta property="og:url" content="https://youngtr.github.io/2017/09/20/BezierView/index.html">
 <meta property="og:site_name" content="YoungTr">
-<meta property="og:description" content="简单学习了贝塞尔曲线的原理和使用1. 一阶贝塞尔曲线和水波纹效果的使用 2. 曲线的拟合 3. 粘性拖动控件 源码BezierView 参考贝塞尔曲线原理 http://www.cnblogs.com/hnfxs/p/3148483.html Android QQ小红点的实现 http://blog.csdn.net/mabeijianxi/article/details/50560361 贝塞尔">
+<meta property="og:description" content="简单学习了贝塞尔曲线的原理和使用二阶贝塞尔曲线在Android中的API为：quadTo()和rQuadTo()，三阶贝塞尔曲线在Android中的API为：cubicTo()和rCubicTo(). 1. 一阶贝塞尔曲线和水波纹效果的使用 关键代码  mPath.reset(); mPath.moveTo(-mWaveLength + mXOffset, mCenterY); for (int">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://youngtr.github.io/images/Bezier.gif">
 <meta property="og:image" content="https://youngtr.github.io/images/bezierview.png">
 <meta property="og:image" content="https://youngtr.github.io/images/drag.gif">
-<meta property="og:updated_time" content="2017-09-21T08:27:52.015Z">
+<meta property="og:updated_time" content="2017-09-21T11:30:15.737Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="BezierView">
-<meta name="twitter:description" content="简单学习了贝塞尔曲线的原理和使用1. 一阶贝塞尔曲线和水波纹效果的使用 2. 曲线的拟合 3. 粘性拖动控件 源码BezierView 参考贝塞尔曲线原理 http://www.cnblogs.com/hnfxs/p/3148483.html Android QQ小红点的实现 http://blog.csdn.net/mabeijianxi/article/details/50560361 贝塞尔">
+<meta name="twitter:description" content="简单学习了贝塞尔曲线的原理和使用二阶贝塞尔曲线在Android中的API为：quadTo()和rQuadTo()，三阶贝塞尔曲线在Android中的API为：cubicTo()和rCubicTo(). 1. 一阶贝塞尔曲线和水波纹效果的使用 关键代码  mPath.reset(); mPath.moveTo(-mWaveLength + mXOffset, mCenterY); for (int">
 <meta name="twitter:image" content="https://youngtr.github.io/images/Bezier.gif">
 
 
@@ -366,8 +366,20 @@
       
 
       
-        <h3 id="简单学习了贝塞尔曲线的原理和使用"><a href="#简单学习了贝塞尔曲线的原理和使用" class="headerlink" title="简单学习了贝塞尔曲线的原理和使用"></a>简单学习了贝塞尔曲线的原理和使用</h3><h4 id="1-一阶贝塞尔曲线和水波纹效果的使用"><a href="#1-一阶贝塞尔曲线和水波纹效果的使用" class="headerlink" title="1. 一阶贝塞尔曲线和水波纹效果的使用"></a>1. 一阶贝塞尔曲线和水波纹效果的使用</h4><p><img src="https://youngtr.github.io/images/Bezier.gif" width="50%" height="50%"></p>
-<h4 id="2-曲线的拟合"><a href="#2-曲线的拟合" class="headerlink" title="2. 曲线的拟合"></a>2. 曲线的拟合</h4><p><img src="https://youngtr.github.io/images/bezierview.png" width="50%" height="50%"></p>
+        <h3 id="简单学习了贝塞尔曲线的原理和使用"><a href="#简单学习了贝塞尔曲线的原理和使用" class="headerlink" title="简单学习了贝塞尔曲线的原理和使用"></a>简单学习了贝塞尔曲线的原理和使用</h3><p>二阶贝塞尔曲线在Android中的API为：quadTo()和rQuadTo()，三阶贝塞尔曲线在Android中的API为：cubicTo()和rCubicTo().</p>
+<h4 id="1-一阶贝塞尔曲线和水波纹效果的使用"><a href="#1-一阶贝塞尔曲线和水波纹效果的使用" class="headerlink" title="1. 一阶贝塞尔曲线和水波纹效果的使用"></a>1. 一阶贝塞尔曲线和水波纹效果的使用</h4><p><img src="https://youngtr.github.io/images/Bezier.gif" width="50%" height="50%"></p>
+<p>关键代码</p>
+<pre><code> mPath.reset();
+mPath.moveTo(-mWaveLength + mXOffset, mCenterY);
+for (int i = 0; i &lt; mWaveCount; i++) {
+    mPath.quadTo((-mWaveLength * 3 / 4) + (i * mWaveLength) + mXOffset, mCenterY + mYOffset, (-mWaveLength / 2) + (i * mWaveLength) + mXOffset, mCenterY);
+    mPath.quadTo((-mWaveLength / 4) + (i * mWaveLength) + mXOffset, mCenterY - mYOffset, i * mWaveLength + mXOffset, mCenterY);
+}
+mPath.lineTo(mWidth, mHeight);
+mPath.lineTo(0, mHeight);
+mPath.close();
+canvas.drawPath(mPath, mWavePaint);
+</code></pre><h4 id="2-曲线的拟合"><a href="#2-曲线的拟合" class="headerlink" title="2. 曲线的拟合"></a>2. 曲线的拟合</h4><p><img src="https://youngtr.github.io/images/bezierview.png" width="50%" height="50%"></p>
 <h4 id="3-粘性拖动控件"><a href="#3-粘性拖动控件" class="headerlink" title="3. 粘性拖动控件"></a>3. 粘性拖动控件</h4><p><img src="https://youngtr.github.io/images/drag.gif" width="50%" height="50%"></p>
 <p><strong><a href="https://github.com/YoungTr/BezierView" target="_blank" rel="external">源码BezierView</a></strong></p>
 <h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="http://www.cnblogs.com/hnfxs/p/3148483.html" target="_blank" rel="external">贝塞尔曲线原理 http://www.cnblogs.com/hnfxs/p/3148483.html</a></p>
@@ -401,6 +413,22 @@
       
       
 
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/09/21/command-pattern/" rel="prev" title="命令模式">
+                命令模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
       
 
       
@@ -474,7 +502,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -485,7 +513,7 @@
             
             <div class="site-state-item site-state-categories">
               <a href="/categories/index.html">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -496,7 +524,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-count">3</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
