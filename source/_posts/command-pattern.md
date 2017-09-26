@@ -263,7 +263,7 @@ public class CeilingFan {
 }
 ```
 
-加入撤销到吊扇的命令类，每次执行execute()方法，将当前的状态记录下来
+加入撤销到吊扇的命令类，每次执行execute()方法，将 execute() 被执行前的状态记录下来
 
 ```
 public class CeilingFanOnCommand implements Command {
