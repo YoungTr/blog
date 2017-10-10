@@ -1,8 +1,8 @@
 ---
 title: Material Design for Android Developers
 date: 2017-10-09 21:28:52
-tags: [Android, Material Design]
-categories: [Material Design]
+tags: [Android, MaterialDesign]
+categories: [MaterialDesign]
 ---
 
 # Material Design for Android Developers
