@@ -325,6 +325,8 @@ Android Studio 中定义
 
 图标应方便识别并在你的 UI 中起到解释的作用，最好在常见任务中使用平台图标,如搜索或者分享，因为用户对此非常熟悉。
 
+![user icon](/images/user-icon.png)
+
 [关于创建图标的更多信息](https://www.google.com/design/spec/style/icons.html)
 
 [materialdesignicons.com](https://materialdesignicons.com/)
@@ -335,21 +337,3 @@ Android Studio 中定义
 如果背景与页面元素，如标题、图标颜色差不多时，页面元素可能就看不清楚了。对于覆盖的图标或者文字，可以巧妙地利用图像上的阴影将它们从背景中区分出来，对于文字我们可以使用**渐变色**"纱幕"来解决这个问题。图像和文本之间一个半透明的层，可以提供对比度和清晰度。
 
 ![gradient](/images/user-gradient.png)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
