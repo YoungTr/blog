@@ -337,3 +337,64 @@ Android Studio 中定义
 如果背景与页面元素，如标题、图标颜色差不多时，页面元素可能就看不清楚了。对于覆盖的图标或者文字，可以巧妙地利用图像上的阴影将它们从背景中区分出来，对于文字我们可以使用**渐变色**"纱幕"来解决这个问题。图像和文本之间一个半透明的层，可以提供对比度和清晰度。
 
 ![gradient](/images/user-gradient.png)
+
+##  4. 有意义的动作
+
+### 4.1 TransitionManager
+
+将视图从屏幕顶部滑出
+
+![image](/images/transiton-up.gif)
+
+关键代码
+
+
+```
+ public void click(View view) {
+        Slide slide = new Slide();
+        slide.setSlideEdge(Gravity.TOP);
+
+
+        ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
+        TransitionManager.beginDelayedTransition(root, slide);
+        imageView.setVisibility(View.INVISIBLE);
+    }
+```
+
+
+TransitionManager.beginDelayedTransition 将选择一个视图组和一个过渡类型，调用这个方法后，过渡调用立即获取开始状态，表明所有视图组中的视图都可以在我们修改之前获取开始保存状态，完成后可以修改我们希望改变或过渡的元素，这里将图片设置为不可见。
+帧做完后，过渡管理器调用获取结束状态，将所有视图结束状态存储起来。
+
+STL 具有多个过渡效果
+
+![transitions](/images/transitions.png)
+
+
+### 4.2 场景动画
+
+当UI元素呈现、消失、移动或者改变时，可以定义想要使用的动画效果。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
