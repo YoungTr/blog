@@ -370,25 +370,173 @@ STL 具有多个过渡效果
 ![transitions](/images/transitions.png)
 
 
-### 4.2 场景动画
+### 4.2 Activity Fragment 的转换
 
-当UI元素呈现、消失、移动或者改变时，可以定义想要使用的动画效果。
-
-
+Lollipop 为 Activity 之间更好的过渡效果添加了新方法，首先新 API 允许在启动或离开一项 Activity 时运行过渡效果，这样就能够自定义进入或者退出时的视图，我们称之为"内容过渡"。其次，用户还能创建共享元素的过渡效果。这是呈现在两个屏幕上的元素，它可以进行平滑过渡，使得两项 Activity 之间的共享元素，具有视觉上的连贯性。
 
 
+![transiton-content-share](/images/transiton-content-share.gif)
+
+
+#### 4.2.1 进入和退出Activity
+
+![enter-exit](/images/enter-exit.png)
+
+
+对第一个栅屏添加一个“退出过渡”效果，这里使用一个“爆炸过渡”效果，这样就可以向外移除所有视图。
+
+
+**res/transition/grid-exit.xml**
+
+
+```
+<explode xmlns:android="http://schemas.android.com/apk/res/android" />
+```
+
+
+**res/values/style.xml**
+
+
+
+```
+<style name="AppTheme.Home">
+        <item name="android:windowExitTransition">@transition/grid_exit</item>
+    </style>
+```
+
+
+使用一个bundle来进行传值
+
+```
+Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
+cotext.startActivity(intent, bundle);
+```
+
+看一下效果：
+
+![explore-exit](/images/exit-explore1.gif)
+
+当我们进入详情页时，视图是向外移动的。
+
+
+我们在详情页添加进入的动画，将文本从底部滑出。
+
+DetailActivity enter transition
+
+
+```
+Slide slide = new Slide(Gravity.BOTTOM);
+            slide.addTarget(R.id.description);
+            slide.setInterpolator(AnimationUtils.loadInterpolator(this, android.R.interpolator
+                    .linear_out_slow_in));
+            slide.setDuration(slideDuration);
+            getWindow().setEnterTransition(slide);
+
+```
+
+![explore-enter](/images/exit-explore2.gif)
+
+标题和描述很好的滑入，而图像则巧妙地呈现出来。
+
+这里可能需要注意一下版本检查。
+
+
+**res/transition-v21/grid-exit.xml**
+
+
+**res/values-v21/style.xml**
+
+当点击返回从详情页回到Grid时，“爆炸过渡”效果被反转了,或者说变成了内聚的效果，这是一个默认行为。在返回的路径上反转你所设置的过渡效果。
+
+当然，还可以指定“返回”和“再进入”的过渡效果。
+
+这里加入 re-enter 动画，让元素从顶部滑入。
+
+
+```
+res/transition/grid-reenter.xml
+```
+
+```
+<slide
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:slideEdge="top"
+    android:duration="300"
+    android:interpolator="@android:interpolator/linear_out_slow_in">
+    <targets>
+        <target android:excludeId="@android:id/navigationBarBackground" />
+        <target android:excludeId="@android:id/statusBarBackground" />
+    </targets>
+</slide>
+```
+
+```
+<style name="AppTheme.Home">
+        <item name="android:windowExitTransition">@transition/grid_exit</item>
+        <item name="android:windowReenterTransition">@transition/grid_reenter</item>
+    </style>
+```
+
+
+![reenter](/images/exit-reenter.gif)
 
 
 
 
+#### 4.2.2 共享元素的过渡
+
+共享元素的过渡，保证了 UI 不同状态之间的连贯性，以建立更易于理解的体验。
+
+要实现共享元素的过渡，需要指定哪些视图是共享视图。我们需要对两种 Activity 视图的 transitionName 属性进行设置。
+
+![transitionName](/images/transitionName.png)
+
+
+使用 ActivityOptions.makeSceneTransitionAnimation 指定共享元素
+
+
+```
+ActivityOptions.makeSceneTransitionAnimation(
+                                MainActivity.this,
+                                view,
+                                view.getTransitionName())
+                                .toBundle());
+```
+
+注意：TransitionName 字段是一个字符串，而非通过 ID 来确认视图。这是因为共享元素的过渡不仅仅发生在应用的屏幕之间，也可以发布支持的过渡名称，并且在不同应用程序之间加入共享元素的过渡效果。
+
+
+**res/transition/share-photo.xml**
+
+```
+<transitionSet xmlns:android="http://schemas.android.com/apk/res/android">
+    <changeBounds/>
+    <changeTransform/>
+    <changeClipBounds/>
+    <changeImageTransform/>
+    <arcMotion android:minimumHorizontalAngle="40" android:duration="1000" />
+</transitionSet>
+```
+
+use xml
+
+```
+<style name="AppTheme.Details">
+        <item name="android:windowSharedElementEnterTransition">@transition/shared_photo</item>
+    </style>
+```
+
+or code
 
 
 
+```
+getWindow().setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.shared_photo));
+```
 
 
 
-
-
+![transition-share](/images/transition-share.gif)
 
 
 
