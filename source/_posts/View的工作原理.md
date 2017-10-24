@@ -214,3 +214,12 @@ DecorView 的 MeasureSpec 遵守如下规则：
     }
 ```
 
+上述方法主要作用是根据父容器的 MeasureSpec 同时结合 View 本身的 LayoutParams 来确定子元素的 MeasureSpec，参数中的 padding 是指父容器中已占用的空间大小，因此子元素可用大小为父容器的尺寸减去 padding 。
+
+普通 View 的 MeasureSpec 创建规则
+
+![view-measure-spec](/images/view-measure-spec.png)
+
+* 当 View 采用固定宽高时，不管父容器的 MeasureSpec 是什么，View 的 MeasureSpec 都是 **MeasureSpec.EXACTLY** 其大小都是遵循 LayoutParams 中的大小。
+* 当 View 的宽高是 match_parent 时，如果父容器是 MeasureSpec.EXACTLY 模式，那么 View 也是 MeasureSpec.EXACTLY 模式其大小是父容器的剩余空间；如果父容器是 MeasureSpec.AT_MOST 模式，那么 View 也是 MeasureSpec.AT_MOST 模式其大小不会超过父容器的剩余空间。
+* 当 View 的宽高是 wrap_content 时，不管父容器是 MeasureSpec.EXACTLY 还是 MeasureSpec.AT_MOST ，View 总是 MeasureSpec.AT_MOST 模式并且大小不能超过父容器剩余空间。 
