@@ -223,3 +223,10 @@ DecorView 的 MeasureSpec 遵守如下规则：
 * 当 View 采用固定宽高时，不管父容器的 MeasureSpec 是什么，View 的 MeasureSpec 都是 **MeasureSpec.EXACTLY** 其大小都是遵循 LayoutParams 中的大小。
 * 当 View 的宽高是 match_parent 时，如果父容器是 MeasureSpec.EXACTLY 模式，那么 View 也是 MeasureSpec.EXACTLY 模式其大小是父容器的剩余空间；如果父容器是 MeasureSpec.AT_MOST 模式，那么 View 也是 MeasureSpec.AT_MOST 模式其大小不会超过父容器的剩余空间。
 * 当 View 的宽高是 wrap_content 时，不管父容器是 MeasureSpec.EXACTLY 还是 MeasureSpec.AT_MOST ，View 总是 MeasureSpec.AT_MOST 模式并且大小不能超过父容器剩余空间。 
+
+
+### 3. View 的工作流程
+
+#### 3.1 measure 过程
+
+如果是一个原始的 View ，那么通过 measure 就可以完成其测量；如果是一个 ViewGroup ，除了完成自己的测量，还会遍历去调用所有子元素的 measure 方法。

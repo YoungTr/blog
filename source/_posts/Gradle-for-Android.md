@@ -8,7 +8,7 @@ category: [Gradle]
 
 ### 1. 开始使用 Gradle 和 Android Studio
 
-#### Understanding Gradle basics
+#### 理解 Gradle 基础
 
 Android 项目中要使用 Gradle，需要创建一个 “build.gradle” 的脚本文件。
 
@@ -50,7 +50,7 @@ android {
 }
 ```
 
-### The project structure
+### 工程结构
 
 ![gradle-project-structure](/images/gradle-project-structure.png)
 
@@ -60,7 +60,7 @@ source set *is a group of source fles, which are compiled and executed together*
 ![gradle-source-set](/images/gradle-source-set.png)
 
 
-### Getting started with the Gradle Wrapper
+### 使用 Gradle Wrapper
 
 Gradle Wrapper 未安装 Gradle 也可以使用，gradlew会委托gradle命令来做相应的事情。
 
@@ -82,7 +82,7 @@ build.gradle 默认有 wrapper 任务，也可以指定 gradle 的版本
 gradle wrapper --gradle-version 2.4
 ```
 
-### Running basic build tasks
+### 基础 build tasks
 
 ```
 gradlew tasks
@@ -97,7 +97,7 @@ gradlew assembleDebug
 这个任务会创建一个 debug 版本的 app，默认路径为 MyApp/app/build/
 outputs/apk 
 
-**Abbreviated task names**
+**简化的任务名称**
 
 Gradle还提供了简化的驼峰任务名称作为快捷方式，当然这个驼峰简称必须使唯一的，比如，
 
@@ -118,7 +118,7 @@ gradlew assembleDebug
 
 一样。
 
-### Keeping the old project structure
+### 保持老的项目结构
 
 从 Elicpse  导入项目时，所有的源都将驻留在同一个文件夹中，所以需要告诉Gradle所有这些组件都可以在src文件夹中找到。
 
