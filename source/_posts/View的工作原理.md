@@ -325,3 +325,83 @@ mesureChild 思想就是去除子元素的 LayoutParams，然后再通过 getChi
 
 
 ViewGroup 并没有定义其测量的具体过程，因为不同的布局实现细节不同，无法统一处理，通过 LinearLayout 的 onMeasure 方法分析 ViewGroup 的 measure 过程。
+
+
+
+
+LinearLayout 的 onMeasure 方法：
+
+```
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (mOrientation == VERTICAL) {
+            measureVertical(widthMeasureSpec, heightMeasureSpec);
+        } else {
+            measureHorizontal(widthMeasureSpec, heightMeasureSpec);
+        }
+    }
+```
+
+这里查看一下 measureVertical 方法：
+
+```
+ 		// See how tall everyone is. Also remember max width.
+ 		
+    	for (int i = 0; i < count; ++i) {
+            final View child = getVirtualChildAt(i);
+            ....
+        // Determine how big this child would like to be. If this or
+        / previous children have given a weight, then we allow it to
+        / use all available space (and we will shrink things later
+        // if needed).
+        
+        measureChildBeforeLayout(
+               child, i, widthMeasureSpec, 0, heightMeasureSpec,
+                totalWeight == 0 ? mTotalLength : 0);
+            if (oldHeight != Integer.MIN_VALUE) {
+                 lp.height = oldHeight;
+             }
+             final int childHeight = child.getMeasuredHeight();
+             final int totalLength = mTotalLength;
+             mTotalLength = Math.max(totalLength, totalLength + childHeight + lp.topMargin +
+                    lp.bottomMargin + getNextLocationOffset(child));
+         }
+```
+
+
+
+系统会遍历子元素并对每个子元素执行 measureChildBeforeLayout 方法，这个方法内部会调用子元素的 measure 方法，各个子元素就开始依次进入 measure 过程，并行会通过 mTotalLength 变量来存储 LinearLayout 在竖直方向的初步高度。
+
+当子元素测量完毕后，LinearLayout 会测量自己的大小：
+
+```
+ // Add in our padding
+ mTotalLength += mPaddingTop + mPaddingBottom;
+ int heightSize = mTotalLength;
+
+ // Check against our minimum height
+ heightSize = Math.max(heightSize, getSuggestedMinimumHeight());
+ 
+ // Reconcile our calculated size with the heightMeasureSpec
+ int heightSizeAndState = resolveSizeAndState(heightSize, heightMeasureSpec, 0);
+ heightSize = heightSizeAndState & MEASURED_SIZE_MASK;
+ setMeasuredDimension(resolveSizeAndState(maxWidth, widthMeasureSpec, childState),
+                heightSizeAndState);
+        
+```
+
+
+View 的 measure 过程是三大流程中最复杂的一个，measure 完成以后，通过 getMeasuredWidth/Height 方法可以正确地获取到 View 的测量宽高。在某些极端情况下，系统需要多次 measure 才能确定最终的测量宽高，这样在 onMeasure 方法中拿到测量的宽高可能是不准确的。一个比较好的方法是在 onLayout 方法中去获取 View 的测量宽高或者最终的宽高。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
