@@ -136,7 +136,7 @@ Android Plugin 新增了一些任务：
             buildConfigField "boolean", "LOG_HTTP_CALLS", "false"
         }
     }
-``` 
+```
 
 添加了 buildConfigField 后，就可以在代码中使用 BuildConfig.API_URL 和 BuildConfig.LOG_HTTP 常量了。
 
