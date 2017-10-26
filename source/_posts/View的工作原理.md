@@ -230,3 +230,98 @@ DecorView 的 MeasureSpec 遵守如下规则：
 #### 3.1 measure 过程
 
 如果是一个原始的 View ，那么通过 measure 就可以完成其测量；如果是一个 ViewGroup ，除了完成自己的测量，还会遍历去调用所有子元素的 measure 方法。
+
+
+##### 3.1.1 View 的 measure 工程
+
+View 的 measure 工程由其 measure 方法完成，该方法是一个 final 类型的方法，在该方法中会其调用 onMeasure 方法：
+
+```
+protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
+                getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
+    }
+```
+setMeasuredDimension 方法会设置 View 的宽高，只需要看一下 getDefaultSize 方法：
+
+```
+	public static int getDefaultSize(int size, int measureSpec) {
+        int result = size;
+        int specMode = MeasureSpec.getMode(measureSpec);
+        int specSize = MeasureSpec.getSize(measureSpec);
+
+        switch (specMode) {
+        case MeasureSpec.UNSPECIFIED:
+            result = size;
+            break;
+        case MeasureSpec.AT_MOST:
+        case MeasureSpec.EXACTLY:
+            result = specSize;
+            break;
+        }
+        return result;
+    }
+```
+
+对于 MeasureSpec.AT_MOST 和 MeasureSpec.EXACTLY ，getDefaultSize 返回的大小就是 measureSpec 中的 specSize，而这个 specSize 就是 View 测量后的大小。
+
+对 MeasureSpec.UNSPECIFIED ，View 的宽高是 getSuggestedMinimumWidth 和 getSuggestedMinimumHeight 的返回值。
+
+
+```
+    protected int getSuggestedMinimumWidth() {
+        return (mBackground == null) ? mMinWidth : max(mMinWidth, mBackground.getMinimumWidth());
+    }
+```
+
+如果 View 没有设置背景，那么 View 的宽为 mMinWidth，即 android:minWidth 属性所指定的值，默认为 0；如果设置了背景，则 View 的宽为 max(mMinWidth,，mBackground.getMinimumWidth())
+
+```
+    public int getMinimumWidth() {
+        final int intrinsicWidth = getIntrinsicWidth();
+        return intrinsicWidth > 0 ? intrinsicWidth : 0;
+    }
+```
+getMinimumWidth 就是返回 Drawable 的原始宽度。
+
+可以得出这样一个结论：直接继承 View 自定义控件需要重写 onMeasure 方法并设置 wrap_content 时自身大小，否则布局中使用 wrap_content 就相当于使用 match_parent。原因见 *普通 View 的 MeasureSpec 创建规则*
+
+##### 3.1.2 ViewGrop 的 measure 过程
+
+对 ViewGroup 来说，除了完成自己的 measure 过程，还会遍历调用所有子元素的 measure 方法，各个子元素再递归去执行这个过程。
+
+ViewGroup 是一个抽象类，没有重写 View 的 onMeasure 方法，提供了一个 measureChildren 方法：
+
+```
+    protected void measureChildren(int widthMeasureSpec, int heightMeasureSpec) {
+        final int size = mChildrenCount;
+        final View[] children = mChildren;
+        for (int i = 0; i < size; ++i) {
+            final View child = children[i];
+            if ((child.mViewFlags & VISIBILITY_MASK) != GONE) {
+                measureChild(child, widthMeasureSpec, heightMeasureSpec);
+            }
+        }
+    }
+```
+
+ViewGroup 在 measure 是，会对每一个子元素进行 measure：
+
+```
+    protected void measureChild(View child, int parentWidthMeasureSpec,
+            int parentHeightMeasureSpec) {
+        final LayoutParams lp = child.getLayoutParams();
+
+        final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
+                mPaddingLeft + mPaddingRight, lp.width);
+        final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
+                mPaddingTop + mPaddingBottom, lp.height);
+
+        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+    }
+```
+
+mesureChild 思想就是去除子元素的 LayoutParams，然后再通过 getChildMeasureSpec 来创建子元素的 MeasureSpec，接着将 MeasureSpec 直接传递给 View 的 measure 方法来进行测量。
+
+
+ViewGroup 并没有定义其测量的具体过程，因为不同的布局实现细节不同，无法统一处理，通过 LinearLayout 的 onMeasure 方法分析 ViewGroup 的 measure 过程。
