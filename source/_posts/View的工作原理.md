@@ -393,15 +393,182 @@ LinearLayout 的 onMeasure 方法：
 View 的 measure 过程是三大流程中最复杂的一个，measure 完成以后，通过 getMeasuredWidth/Height 方法可以正确地获取到 View 的测量宽高。在某些极端情况下，系统需要多次 measure 才能确定最终的测量宽高，这样在 onMeasure 方法中拿到测量的宽高可能是不准确的。一个比较好的方法是在 onLayout 方法中去获取 View 的测量宽高或者最终的宽高。
 
 
+#### 3.2 layout 过程
+
+Layout 的作用是 ViewGroup 用来确定子元素的位置，当 ViewGroup 的位置确定后，它在 onLayout 中会遍历所有子元素并调用 layout 方法，在 layout 方法中 onLayout 方法又会被调用。
+
+layout 的方法确定 View 本身的位置，onLayout 方法则会确认所有子元素的位置。
+
+View 的 layout 方法：
+
+```
+    public void layout(int l, int t, int r, int b) {
+        if ((mPrivateFlags3 & PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT) != 0) {
+            onMeasure(mOldWidthMeasureSpec, mOldHeightMeasureSpec);
+            mPrivateFlags3 &= ~PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT;
+        }
+
+        int oldL = mLeft;
+        int oldT = mTop;
+        int oldB = mBottom;
+        int oldR = mRight;
+
+        boolean changed = isLayoutModeOptical(mParent) ?
+                setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);
+
+        if (changed || (mPrivateFlags & PFLAG_LAYOUT_REQUIRED) == PFLAG_LAYOUT_REQUIRED) {
+            onLayout(changed, l, t, r, b);
+
+            if (shouldDrawRoundScrollbar()) {
+                if(mRoundScrollbarRenderer == null) {
+                    mRoundScrollbarRenderer = new RoundScrollbarRenderer(this);
+                }
+            } else {
+                mRoundScrollbarRenderer = null;
+            }
+
+            mPrivateFlags &= ~PFLAG_LAYOUT_REQUIRED;
+
+            ListenerInfo li = mListenerInfo;
+            if (li != null && li.mOnLayoutChangeListeners != null) {
+                ArrayList<OnLayoutChangeListener> listenersCopy =
+                        (ArrayList<OnLayoutChangeListener>)li.mOnLayoutChangeListeners.clone();
+                int numListeners = listenersCopy.size();
+                for (int i = 0; i < numListeners; ++i) {
+                    listenersCopy.get(i).onLayoutChange(this, l, t, r, b, oldL, oldT, oldR, oldB);
+                }
+            }
+        }
+
+        mPrivateFlags &= ~PFLAG_FORCE_LAYOUT;
+        mPrivateFlags3 |= PFLAG3_IS_LAID_OUT;
+    }
+```
+
+首先，setFrame 方法设定 View 四个顶点的位置，即初始化 mLeft、mTop、mRight、mBottom 四个值，View 的四个顶点的位置一旦确定，View 在父容器中的位置也就确定了；接着会调用 onLayout 方法，作用是父容器确定子元素的位置，其实现与具体的布局有关。
+
+LinearLayout 的 onLayout 方法：
+
+```
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        if (mOrientation == VERTICAL) {
+            layoutVertical(l, t, r, b);
+        } else {
+            layoutHorizontal(l, t, r, b);
+        }
+    }
+```
+
+layoutVertical 方法：
+
+```
+    void layoutVertical(int left, int top, int right, int bottom) {
+	
+		......
+
+        for (int i = 0; i < count; i++) {
+            final View child = getVirtualChildAt(i);
+            if (child == null) {
+                childTop += measureNullChild(i);
+            } else if (child.getVisibility() != GONE) {
+                final int childWidth = child.getMeasuredWidth();
+                final int childHeight = child.getMeasuredHeight();
+                
+                final LinearLayout.LayoutParams lp =
+                        (LinearLayout.LayoutParams) child.getLayoutParams();
+                
+                int gravity = lp.gravity;
+                if (gravity < 0) {
+                    gravity = minorGravity;
+                }
+                final int layoutDirection = getLayoutDirection();
+               	
+				......
+
+                if (hasDividerBeforeChildAt(i)) {
+                    childTop += mDividerHeight;
+                }
+
+                childTop += lp.topMargin;
+                setChildFrame(child, childLeft, childTop + getLocationOffset(child),
+                        childWidth, childHeight);
+                childTop += childHeight + lp.bottomMargin + getNextLocationOffset(child);
+
+                i += getChildrenSkipCount(child, i);
+            }
+        }
+    }
+```
 
 
+此方法会遍历所有子元素并调用 setChildFrame 方法来为子元素指定对应位置，childTop 会逐渐变大，这意味着后面的子元素会被放置在靠下的位置。
 
+setChildFrame 方法仅仅是调用子元素的 layout 方法，这样父元素在 layout 方法中完成自己的定位后，就通过调用 onLayout 方法去调用子元素的 layout 方法，子元素会通过自己的 layout 方法确定自己的位置，这样一层一层传递下去就完成整个 View 树的 layout 过程。
 
+```
+    private void setChildFrame(View child, int left, int top, int width, int height) {        
+        child.layout(left, top, left + width, top + height);
+    }
+```
 
+#### 3.3 draw 过程
 
+Draw 过程是将 View 绘制到屏幕上，View 的绘制流程遵循一下几个步骤：
 
+1. 绘制背景 background.draw(canvas)
+2. 绘制自己 (onDraw)
+3. 绘制 children (dispatchDraw)
+4. 绘制装饰 (onDrawScrollBars)
 
+```
+    public void draw(Canvas canvas) {
+        final int privateFlags = mPrivateFlags;
+        final boolean dirtyOpaque = (privateFlags & PFLAG_DIRTY_MASK) == PFLAG_DIRTY_OPAQUE &&
+                (mAttachInfo == null || !mAttachInfo.mIgnoreDirtyState);
+        mPrivateFlags = (privateFlags & ~PFLAG_DIRTY_MASK) | PFLAG_DRAWN;
 
+        /*
+         * Draw traversal performs several drawing steps which must be executed
+         * in the appropriate order:
+         *
+         *      1. Draw the background
+         *      2. If necessary, save the canvas' layers to prepare for fading
+         *      3. Draw view's content
+         *      4. Draw children
+         *      5. If necessary, draw the fading edges and restore layers
+         *      6. Draw decorations (scrollbars for instance)
+         */
 
+        // Step 1, draw the background, if needed
+        int saveCount;
+
+        if (!dirtyOpaque) {
+            drawBackground(canvas);
+        }
+
+        // skip step 2 & 5 if possible (common case)
+        final int viewFlags = mViewFlags;
+        boolean horizontalEdges = (viewFlags & FADING_EDGE_HORIZONTAL) != 0;
+        boolean verticalEdges = (viewFlags & FADING_EDGE_VERTICAL) != 0;
+        if (!verticalEdges && !horizontalEdges) {
+            // Step 3, draw the content
+            if (!dirtyOpaque) onDraw(canvas);
+
+            // Step 4, draw the children
+            dispatchDraw(canvas);
+
+            // Overlay is part of the content and draws beneath Foreground
+            if (mOverlay != null && !mOverlay.isEmpty()) {
+                mOverlay.getOverlayView().dispatchDraw(canvas);
+            }
+
+            // Step 6, draw decorations (foreground, scrollbars)
+            onDrawForeground(canvas);
+
+            // we're done...
+            return;
+        }
+        ......
+```
 
 
