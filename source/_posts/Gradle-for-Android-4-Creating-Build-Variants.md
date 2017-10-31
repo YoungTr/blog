@@ -162,3 +162,122 @@ product flavors 有自己的源集（source set）文件夹，文件夹名为 fl
 
 组合文件夹的组件将具有比构建类型文件夹和product flavor文件夹中的组件更高的优先级。
 
+
+### 多种变体(Multiﬂavor variants)
+
+在某些情况下，您可能需要进一步了解并创建 product flavors 的组合。例如，客户端A和客户端B可能都希望他们的应用程序的有免费和付费两个版本，它们基于相同的代码库，但具有不同的品牌。创建四个不同的 flavors 将意味着具有几个重复的设置，这不是最好的方法。使用 flavor dimensions 可以以有效的方式组合 flavors，如下所示：
+
+```
+    flavorDimensions "color", "price"
+    productFlavors {
+        red {
+            flavorDimension "color"
+        }
+        blue {
+            flavorDimension "color"
+        }
+        free {
+            flavorDimension "price"
+        }
+        paid {
+            flavorDimension "price"
+        }
+    }
+```
+
+
+一旦添加了flavor dimensions，Gradle就可以为每个flavor指定一个维度。如果没有添加，构建将会报错。
+
+flavorDimensions数组定义了dimensions，dimensions的顺序非常重要。当组合两个flavors时，它们可能已经定义了相同的属性或资源。在这种情况下，flavor维数组的顺序确定哪个flavor配置覆盖另一个。在前面的示例中，颜色维度会覆盖价格维度。该顺序也决定了构建变体的名称。
+
+假设使用debug和release版构建类型的默认构建配置，定义前一个示例所示的flavors将生成所有这些构建变体：
+
+* blueFreeDebug and blueFreeRelease
+* bluePaidDebug and bluePaidRelease
+* redFreeDebug and redFreeRelease
+* redPaidDebug and redPaidRelease
+
+### 资源和清单文件的合并
+
+引入源集对构建过程增加了额外的复杂性。Gradle 的 Android plugin需要在打包应用程序之前将主源集合和构建类型源集合合并在一起。此外，library 项目还可以提供额外的资源，这也需要合并。清单文件也是一样。例如，可能需要在应用程序的调试版本中添加额外的Android权限才能存储日志文件。您不想在主源集上声明此权限，因为这可能会失去潜在的用户。相反，可以在调试构建类型源集中添加一个额外的清单文件，以声明额外权限。
+
+资源和清单的优先顺序如下所示：
+
+![gradle-file-merge](/images/gradle-file-merge.png)
+
+如果资源在 flavor 和主源集合中均声明，flavor的资源将被赋予更高的优先级。在这种情况下，flavor源集中的资源将被打包，而不是主源中的资源集。在library项目中定义的资源总是具有最低优先级。
+
+### 变体过滤(Variant filters)
+
+可以完全忽略构建中的某些变体,这样可以使用通用组装命令加快构建所有变体的过程，并且任务列表不会被不应该执行的任务所污染。这也确保了构建版本不会显示在Android Studio构建版本切换器中。
+
+```
+android.variantFilter { variant ->
+    if(variant.buildType.name.equals('release')) {
+        variant.getFlavors().each() { flavor ->
+            if (flavor.name.equals('blue')) {
+                variant.setIgnore(true);
+            }
+        }
+    }
+}
+```
+
+### 签名配置(Signing confgurations)
+
+在Google Play或任何其他应用商店上发布应用之前，您需要使用私钥签名。如果有不同客户的付费和免费版本或不同的应用程序，则需要使用其他key签署每个flavor。
+
+```
+android {
+
+    signingConfigs {
+        staging.initWith(signingConfigs.debug)
+
+        release {
+            storeFile file("release.keystore")
+            storePassword "secretpassword"
+            keyAlias "gradleforandroid"
+            keyPassword "secretpassword"
+        }
+    }
+```
+
+调试配置由Android插件自动设置，并使用具有已知密码的通用密钥库，因此无需为此构建类型创建签名配置。
+
+示例中的staging配置使用initWith()，它会将所有属性从另一个签名配置复制。这意味着staging生成使用debug key进行签名，而不是自己定义。
+
+release 配置使用 storeFile 指定密钥库文件的路径，然后定义密钥别名和两个密码。
+
+定义签名配置后，您需要将其应用于您的构建类型或flavors。构建类型和flavors都有一个名为signConfig的属性:
+
+```
+android {
+	buildTypes {
+		release {
+		signingConfig signingConfigs.release
+		}
+	}
+
+	productFlavors {
+		blue {
+			signingConfig signingConfigs.release
+			}
+		}
+	}
+}
+```
+
+这样使用签名配置，会导致问题，当向flavor分配配置时，实际上覆盖了构建类型的签名配置。当使用 flavors 时，每个构建类型每个flavor有一个不同的键：
+
+```
+android {
+	buildTypes {
+		release {
+			productFlavors.red.signingConfig signingConfigs.red
+			productFlavors.blue.signingConfig signingConfigs.blue
+		}
+	}
+}
+```
+
+该示例显示了如何使用不同的签名配置来使用release构建类型的blue和red flavors，而不影响 debug 和 staing 构建类型。
