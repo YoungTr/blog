@@ -321,7 +321,7 @@ ViewGroup 在 measure 是，会对每一个子元素进行 measure：
     }
 ```
 
-mesureChild 思想就是去除子元素的 LayoutParams，然后再通过 getChildMeasureSpec 来创建子元素的 MeasureSpec，接着将 MeasureSpec 直接传递给 View 的 measure 方法来进行测量。
+mesureChild 思想就是获取子元素的 LayoutParams，然后再通过 getChildMeasureSpec 来创建子元素的 MeasureSpec，接着将 MeasureSpec 直接传递给 View 的 measure 方法来进行测量。
 
 
 ViewGroup 并没有定义其测量的具体过程，因为不同的布局实现细节不同，无法统一处理，通过 LinearLayout 的 onMeasure 方法分析 ViewGroup 的 measure 过程。

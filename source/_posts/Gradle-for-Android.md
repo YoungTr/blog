@@ -1,5 +1,5 @@
 ---
-title: Gradle for Android-1:Getting Started with Gradle and Android Studio
+title: Gradle for Android-1.Gradle和Android Studio入门(Getting Started with Gradle and Android Studio)
 date: 2017-10-24 14:32:01
 tags: [Gradle, Android]
 category: [Gradle]

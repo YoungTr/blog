@@ -1,5 +1,5 @@
 ---
-title: Gradle for Android-3:Managing Dependencies
+title: Gradle for Android-3.管理依赖关系(Managing Dependencies)
 date: 2017-10-26 09:22:47
 tags: [Gradle, Android]
 category: [Gradle]
